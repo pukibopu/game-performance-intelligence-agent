@@ -1,0 +1,39 @@
+# 顶层配置：编辑器读到这里就不再往上级目录找 .editorconfig
+root = true
+
+# ---------- 所有文件的默认规则 ----------
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+# ---------- 数据和配置文件用 2 空格 ----------
+[*.{json,yml,yaml,toml}]
+indent_size = 2
+
+# Markdown：行尾两个空格表示硬换行，不能自动删除
+[*.md]
+indent_size = 2
+trim_trailing_whitespace = false
+
+# Windows 脚本保持 CRLF（和 .gitattributes 一致）
+[*.{ps1,bat,cmd}]
+end_of_line = crlf
+
+# ---------- C# (Unity) ----------
+[*.cs]
+# Allman 风格：大括号单独占一行（.NET 和 Unity 的惯例）
+csharp_new_line_before_open_brace = all
+csharp_new_line_before_else = true
+csharp_new_line_before_catch = true
+csharp_new_line_before_finally = true
+csharp_indent_case_contents = true
+csharp_indent_switch_labels = true
+csharp_space_after_keywords_in_control_flow_statements = true
+csharp_prefer_braces = true:suggestion
+dotnet_sort_system_directives_first = true
+# Unity 2022.3 用的是 C# 9，不支持 C# 10 的 file-scoped namespace
+csharp_style_namespace_declarations = block_scoped:warning

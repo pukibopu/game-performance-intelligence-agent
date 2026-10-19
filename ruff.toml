@@ -1,0 +1,14 @@
+# Python 的格式化（format）和静态检查（check）
+target-version = "py312"
+line-length = 100
+
+[format]
+quote-style = "double"
+line-ending = "lf"
+# docstring 里的示例代码也一起格式化
+docstring-code-format = true
+
+[lint]
+# E/W: pycodestyle 风格错误   F: pyflakes（未使用的变量和 import、未定义的名字）
+# I: import 排序（相当于 isort）   UP: 升级到 3.12 写法   B: bugbear（常见陷阱）
+select = ["E", "F", "W", "I", "UP", "B"]

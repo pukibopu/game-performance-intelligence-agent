@@ -1,0 +1,24 @@
+{
+  // 保存时自动格式化
+  "editor.formatOnSave": true,
+  // ---------- Python：Ruff ----------
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.codeActionsOnSave": {
+      // ruff format 不排序 import
+      "source.organizeImports.ruff": "explicit"
+    }
+  },
+  // ---------- C++：clang-format ----------
+  "[cpp]": {
+    "editor.defaultFormatter": "ms-vscode.cpptools"
+  },
+  "C_Cpp.formatting": "clangFormat",
+  "C_Cpp.clang_format_style": "file",
+  // 用 VS 自带的 19.1.5，和命令行、VS2022 保持同一个版本
+  "C_Cpp.clang_format_path": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\Llvm\\x64\\bin\\clang-format.exe",
+  // ---------- Markdown：不自动格式化（避免改动表格和硬换行） ----------
+  "[markdown]": {
+    "editor.formatOnSave": false
+  }
+}
