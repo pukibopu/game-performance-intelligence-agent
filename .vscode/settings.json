@@ -20,5 +20,8 @@
   // ---------- Markdown：不自动格式化（避免改动表格和硬换行） ----------
   "[markdown]": {
     "editor.formatOnSave": false
-  }
+  },
+  // ---------- CMake Tools：工程在 core/ 下；IntelliSense 直接使用 CMake 的编译参数 ----------
+  "cmake.sourceDirectory": "${workspaceFolder}/core",
+  "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
 }
