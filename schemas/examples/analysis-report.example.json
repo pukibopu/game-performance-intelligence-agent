@@ -1,0 +1,150 @@
+{
+  "schema_version": "1.0",
+  "report_kind": "analysis",
+  "run_id": "20261020T120000Z-gc_pressure-example",
+  "outcome": "ok",
+  "analyzer": {
+    "name": "gpia-core",
+    "version": "0.1.0",
+    "config": {
+      "hitch": { "method": "rolling_median", "k": 1.4, "window": 61, "abs_floor_ms": 0 },
+      "gc_alloc": { "method": "mad", "k": 5, "min_bytes": 1048576 }
+    }
+  },
+  "input": {
+    "frames_sha256": "da9f165eb080a621744cb6b402127f496f6d729dc7330395d0e6a7db2d1f8354",
+    "frames_total": 9,
+    "frames_analyzed": 9,
+    "warmup_frames_skipped": 0,
+    "frame_index_gaps": 0,
+    "invalid_rows": 0
+  },
+  "summary": {
+    "frame_time_ms": {
+      "count": 9, "missing": 0,
+      "mean": 19.182889, "stddev": 5.220439, "min": 16.681, "max": 31.204,
+      "p50": 16.686, "p95": 28.5808, "p99": 30.67936
+    },
+    "cpu_main_thread_ms": {
+      "count": 5, "missing": 4,
+      "mean": 14.0718, "stddev": 3.723736, "min": 12.395, "max": 20.733,
+      "p50": 12.41, "p95": 19.0704, "p99": 20.40048
+    }
+  },
+  "evidence": [
+    {
+      "id": "ev:20261020T120000Z-gc_pressure-example:1",
+      "type": "threshold_crossing",
+      "description": "frame_time_ms exceeded 1.4x rolling median",
+      "frame_range": { "first": 2, "last": 2 },
+      "data": { "metric": "frame_time_ms", "value": 24.646, "baseline": 16.686, "threshold": 23.3604 }
+    },
+    {
+      "id": "ev:20261020T120000Z-gc_pressure-example:2",
+      "type": "threshold_crossing",
+      "description": "gc_alloc_bytes exceeded absolute floor (MAD is 0, so the floor applies)",
+      "frame_range": { "first": 2, "last": 2 },
+      "data": { "metric": "gc_alloc_bytes", "value": 8388608, "threshold": 1048576 }
+    },
+    {
+      "id": "ev:20261020T120000Z-gc_pressure-example:3",
+      "type": "threshold_crossing",
+      "description": "frame_time_ms exceeded 1.4x rolling median",
+      "frame_range": { "first": 5, "last": 5 },
+      "data": { "metric": "frame_time_ms", "value": 31.204, "baseline": 16.686, "threshold": 23.3604 }
+    },
+    {
+      "id": "ev:20261020T120000Z-gc_pressure-example:4",
+      "type": "counter_delta",
+      "description": "gc_collection_count increased by 1 between frames 4 and 5",
+      "frame_range": { "first": 4, "last": 5 },
+      "data": { "metric": "gc_collection_count", "from": 12, "to": 13, "delta": 1 }
+    },
+    {
+      "id": "ev:20261020T120000Z-gc_pressure-example:5",
+      "type": "counter_delta",
+      "description": "gc_used_bytes dropped between frames 4 and 5",
+      "frame_range": { "first": 4, "last": 5 },
+      "data": { "metric": "gc_used_bytes", "from": 60817408, "to": 44040192, "delta": -16777216 }
+    },
+    {
+      "id": "ev:20261020T120000Z-gc_pressure-example:6",
+      "type": "data_availability",
+      "description": "cpu_main_thread_ms missing for frames 5-8 (FrameTimingManager latency at end of run)",
+      "frame_range": { "first": 5, "last": 8 },
+      "data": { "column": "cpu_main_thread_ms", "missing_frames": 4 }
+    },
+    {
+      "id": "ev:20261020T120000Z-gc_pressure-example:7",
+      "type": "data_availability",
+      "description": "GC.Collect marker duration is not recorded in frames schema v1",
+      "data": { "source": "GC.Collect marker", "status": "not_recorded" }
+    }
+  ],
+  "findings": [
+    {
+      "id": "fd:20261020T120000Z-gc_pressure-example:1",
+      "kind": "frame_hitch",
+      "severity": "medium",
+      "evidence_level": "deterministic_finding",
+      "title": "Frame 2 took 1.48x the median frame time",
+      "frame_range": { "first": 2, "last": 2 },
+      "metrics": { "frame_time_ms": 24.646, "ratio_to_baseline": 1.477 },
+      "evidence_ids": ["ev:20261020T120000Z-gc_pressure-example:1"],
+      "rule": { "name": "hitch.rolling_median", "params": { "k": 1.4, "window": 61 } },
+      "missing_evidence": []
+    },
+    {
+      "id": "fd:20261020T120000Z-gc_pressure-example:2",
+      "kind": "gc_alloc_spike",
+      "severity": "low",
+      "evidence_level": "deterministic_finding",
+      "title": "Frame 2 allocated 8 MiB of managed memory",
+      "frame_range": { "first": 2, "last": 2 },
+      "metrics": { "gc_alloc_bytes": 8388608 },
+      "evidence_ids": ["ev:20261020T120000Z-gc_pressure-example:2"],
+      "rule": { "name": "gc_alloc.mad", "params": { "k": 5, "min_bytes": 1048576 } },
+      "missing_evidence": []
+    },
+    {
+      "id": "fd:20261020T120000Z-gc_pressure-example:3",
+      "kind": "frame_hitch",
+      "severity": "medium",
+      "evidence_level": "deterministic_finding",
+      "title": "Frame 5 took 1.87x the median frame time",
+      "frame_range": { "first": 5, "last": 5 },
+      "metrics": { "frame_time_ms": 31.204, "ratio_to_baseline": 1.8701 },
+      "evidence_ids": ["ev:20261020T120000Z-gc_pressure-example:3"],
+      "rule": { "name": "hitch.rolling_median", "params": { "k": 1.4, "window": 61 } },
+      "missing_evidence": []
+    },
+    {
+      "id": "fd:20261020T120000Z-gc_pressure-example:4",
+      "kind": "gc_collection_hitch",
+      "severity": "medium",
+      "evidence_level": "hypothesis",
+      "title": "Frame 5 hitch coincides with a GC collection",
+      "frame_range": { "first": 5, "last": 5 },
+      "evidence_ids": [
+        "ev:20261020T120000Z-gc_pressure-example:3",
+        "ev:20261020T120000Z-gc_pressure-example:4",
+        "ev:20261020T120000Z-gc_pressure-example:5",
+        "ev:20261020T120000Z-gc_pressure-example:6",
+        "ev:20261020T120000Z-gc_pressure-example:7"
+      ],
+      "rule": { "name": "gc.collection_hitch_same_frame", "params": {} },
+      "missing_evidence": [
+        "GC.Collect marker duration for frame 5",
+        "cpu_main_thread_ms for frame 5"
+      ]
+    }
+  ],
+  "diagnostics": [
+    {
+      "severity": "info",
+      "code": "TRAILING_FRAME_TIMING_MISSING",
+      "message": "FrameTimingManager values are missing for the last 4 frames because of its fixed latency",
+      "field": "cpu_main_thread_ms"
+    }
+  ]
+}

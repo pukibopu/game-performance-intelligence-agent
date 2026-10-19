@@ -1,0 +1,142 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gpia:schema:analysis-report:1",
+  "title": "GPIA Analysis Report v1",
+  "description": "Output of `gpia-core analyze`. Every finding cites evidence by id; referential integrity (cited ids exist) is checked by tests, not by JSON Schema.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "report_kind", "run_id", "outcome",
+    "analyzer", "input", "summary", "evidence", "findings", "diagnostics"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "pattern": "^1\\.[0-9]+$" },
+    "report_kind":    { "const": "analysis" },
+    "run_id":         { "$ref": "#/$defs/run_id" },
+    "outcome":        { "enum": ["ok", "ok_with_warnings", "insufficient_data", "invalid_input"] },
+    "analyzer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version", "config"],
+      "properties": {
+        "name":    { "const": "gpia-core" },
+        "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(-[0-9A-Za-z.]+)?$" },
+        "config":  { "type": "object" }
+      }
+    },
+    "input": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["frames_sha256", "frames_total", "frames_analyzed",
+                   "warmup_frames_skipped", "frame_index_gaps", "invalid_rows"],
+      "properties": {
+        "frames_sha256":         { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "frames_total":          { "type": "integer", "minimum": 0 },
+        "frames_analyzed":       { "type": "integer", "minimum": 0 },
+        "warmup_frames_skipped": { "type": "integer", "minimum": 0 },
+        "frame_index_gaps":      { "type": "integer", "minimum": 0 },
+        "invalid_rows":          { "type": "integer", "minimum": 0 }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "description": "Per-column statistics over analyzed frames, keyed by frames.v1 column name.",
+      "propertyNames": { "pattern": "^[a-z][a-z0-9_]*$" },
+      "additionalProperties": { "$ref": "#/$defs/metric_summary" }
+    },
+    "evidence":    { "type": "array", "items": { "$ref": "#/$defs/evidence" } },
+    "findings":    { "type": "array", "items": { "$ref": "#/$defs/finding" } },
+    "diagnostics": { "type": "array", "items": { "$ref": "#/$defs/diagnostic" } }
+  },
+
+  "$defs": {
+    "run_id": { "type": "string", "pattern": "^[A-Za-z0-9_-]{1,64}$" },
+
+    "frame_range": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["first", "last"],
+      "properties": {
+        "first": { "type": "integer", "minimum": 0 },
+        "last":  { "type": "integer", "minimum": 0 }
+      }
+    },
+
+    "metric_summary": {
+      "type": "object",
+      "description": "Percentiles: linear interpolation between closest ranks (numpy default). stddev: sample (n-1). Statistics are omitted, never zero-filled, when there is not enough data.",
+      "additionalProperties": false,
+      "required": ["count", "missing"],
+      "properties": {
+        "count":   { "type": "integer", "minimum": 0 },
+        "missing": { "type": "integer", "minimum": 0 },
+        "mean":    { "type": "number" },
+        "stddev":  { "type": "number", "minimum": 0 },
+        "min":     { "type": "number" },
+        "max":     { "type": "number" },
+        "p50":     { "type": "number" },
+        "p95":     { "type": "number" },
+        "p99":     { "type": "number" }
+      }
+    },
+
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "description", "data"],
+      "properties": {
+        "id":          { "type": "string", "pattern": "^ev:[A-Za-z0-9_-]{1,64}:[0-9]+$" },
+        "type":        { "enum": ["threshold_crossing", "counter_delta", "co_occurrence", "statistic", "data_availability"] },
+        "description": { "type": "string", "minLength": 1 },
+        "frame_range": { "$ref": "#/$defs/frame_range" },
+        "data":        { "type": "object" }
+      }
+    },
+
+    "finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "severity", "evidence_level", "title", "evidence_ids", "rule", "missing_evidence"],
+      "properties": {
+        "id":             { "type": "string", "pattern": "^fd:[A-Za-z0-9_-]{1,64}:[0-9]+$" },
+        "kind":           { "enum": ["frame_hitch", "cpu_spike", "gc_alloc_spike", "gc_collection_hitch", "memory_growth", "insufficient_data"] },
+        "severity":       { "enum": ["info", "low", "medium", "high"] },
+        "evidence_level": { "enum": ["measured", "deterministic_finding", "evidence_backed_diagnosis", "hypothesis", "insufficient_evidence"] },
+        "title":          { "type": "string", "minLength": 1 },
+        "frame_range":    { "$ref": "#/$defs/frame_range" },
+        "metrics":        { "type": "object", "additionalProperties": { "type": "number" } },
+        "evidence_ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^ev:[A-Za-z0-9_-]{1,64}:[0-9]+$" }
+        },
+        "rule": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["name", "params"],
+          "properties": {
+            "name":   { "type": "string", "pattern": "^[a-z][a-z0-9_.]*$" },
+            "params": { "type": "object" }
+          }
+        },
+        "missing_evidence": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+      },
+      "if":   { "properties": { "evidence_level": { "enum": ["hypothesis", "insufficient_evidence"] } } },
+      "then": { "properties": { "missing_evidence": { "minItems": 1 } } }
+    },
+
+    "diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["severity", "code", "message"],
+      "properties": {
+        "severity": { "enum": ["info", "warning", "error"] },
+        "code":     { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" },
+        "message":  { "type": "string", "minLength": 1 },
+        "line":     { "type": "integer", "minimum": 1 },
+        "field":    { "type": "string" }
+      }
+    }
+  }
+}
