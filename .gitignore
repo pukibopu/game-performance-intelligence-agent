@@ -1,0 +1,44 @@
+# ---------- Unity ----------
+unity/**/[Ll]ibrary/
+unity/**/[Tt]emp/
+unity/**/[Oo]bj/
+unity/**/[Bb]uild/
+unity/**/[Bb]uilds/
+unity/**/[Ll]ogs/
+unity/**/[Uu]ser[Ss]ettings/
+unity/**/[Mm]emoryCaptures/
+unity/**/*.csproj
+unity/**/*.sln
+unity/**/*.pidb.meta
+unity/**/*.pdb.meta
+unity/**/*.mdb.meta
+*_BurstDebugInformation_DoNotShip/
+*_BackUpThisFolder_ButDontShipItWithYourGame/
+
+# ---------- C++ / CMake / Visual Studio ----------
+core/build/
+gpu/**/build/
+out/
+.vs/
+CMakeUserPresets.json
+*.user
+
+# ---------- Python ----------
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# ---------- GPIA 运行时数据 ----------
+runs/
+*.raw
+*.rdc
+*.snap
+*.db
+
+# ---------- 编辑器 / 系统 ----------
+.idea/
+Thumbs.db
+.DS_Store
