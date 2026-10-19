@@ -22,3 +22,7 @@
 *.dll   binary
 *.exe   binary
 *.pdf   binary
+
+# 数据样本按字节原样保存
+schemas/examples/*.csv -text
+datasets/**/*.csv      -text

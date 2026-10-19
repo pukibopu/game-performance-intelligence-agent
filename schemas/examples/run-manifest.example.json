@@ -1,0 +1,117 @@
+{
+  "schema_version": "1.0",
+  "run_id": "20261020T120000Z-gc_pressure-example",
+  "status": "completed",
+  "abort_reason": null,
+  "context": "player",
+  "started_at_utc": "2026-10-20T12:00:00Z",
+  "ended_at_utc": "2026-10-20T12:00:01Z",
+  "frame_count": 9,
+  "warmup_frames": 0,
+  "frames_file": "frames.csv",
+  "frames_sha256": "da9f165eb080a621744cb6b402127f496f6d729dc7330395d0e6a7db2d1f8354",
+  "build": {
+    "unity_version": "2022.3.62f3",
+    "build_id": "example",
+    "development_build": true,
+    "scripting_backend": "mono",
+    "graphics_api": "Direct3D11",
+    "render_pipeline": "urp",
+    "frame_timing_stats": true,
+    "incremental_gc": true
+  },
+  "device": {
+    "os": "Windows 11 (10.0.26200) 64bit",
+    "cpu": "Intel(R) Core(TM) i7-10875H CPU @ 2.30GHz",
+    "cpu_logical_cores": 16,
+    "system_memory_mb": 16288,
+    "gpu_name": "NVIDIA GeForce RTX 2070 Super",
+    "gpu_memory_mb": 8192,
+    "gpu_driver": null
+  },
+  "display": {
+    "width": 1920,
+    "height": 1080,
+    "fullscreen_mode": "Windowed",
+    "vsync_count": 0,
+    "target_frame_rate": -1,
+    "quality_level": "High"
+  },
+  "scenario": {
+    "name": "gc_pressure",
+    "seed": 42,
+    "params": {
+      "period_frames": 120,
+      "alloc_bytes": 8388608
+    }
+  },
+  "instrumentation": [],
+  "columns": [
+    {
+      "name": "frame_index",
+      "unit": "index",
+      "availability": "measured",
+      "source": "collector"
+    },
+    {
+      "name": "timestamp_ns",
+      "unit": "ns",
+      "availability": "measured",
+      "source": "Stopwatch.GetTimestamp"
+    },
+    {
+      "name": "frame_time_ms",
+      "unit": "ms",
+      "availability": "measured",
+      "source": "timestamp delta"
+    },
+    {
+      "name": "cpu_main_thread_ms",
+      "unit": "ms",
+      "availability": "measured",
+      "source": "FrameTiming.cpuMainThreadFrameTime"
+    },
+    {
+      "name": "cpu_render_thread_ms",
+      "unit": "ms",
+      "availability": "measured",
+      "source": "FrameTiming.cpuRenderThreadFrameTime"
+    },
+    {
+      "name": "gpu_frame_time_ms",
+      "unit": "ms",
+      "availability": "measured",
+      "source": "FrameTiming.gpuFrameTime"
+    },
+    {
+      "name": "gc_alloc_bytes",
+      "unit": "bytes",
+      "availability": "measured",
+      "source": "ProfilerRecorder:GC Allocated In Frame"
+    },
+    {
+      "name": "gc_used_bytes",
+      "unit": "bytes",
+      "availability": "measured",
+      "source": "ProfilerRecorder:GC Used Memory"
+    },
+    {
+      "name": "gc_collection_count",
+      "unit": "count",
+      "availability": "measured",
+      "source": "System.GC.CollectionCount(0)"
+    },
+    {
+      "name": "draw_calls",
+      "unit": "count",
+      "availability": "measured",
+      "source": "ProfilerRecorder:Draw Calls Count"
+    },
+    {
+      "name": "scenario_marker",
+      "unit": "id",
+      "availability": "measured",
+      "source": "scenario:gc_pressure"
+    }
+  ]
+}

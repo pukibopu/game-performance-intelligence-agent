@@ -1,0 +1,346 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gpia:schema:run-manifest:1",
+  "title": "GPIA Run Manifest v1",
+  "description": "Metadata for one profiling run directory. Writers must produce exactly these fields; readers tolerate unknown fields from newer minor versions.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "status",
+    "context",
+    "started_at_utc",
+    "ended_at_utc",
+    "frame_count",
+    "warmup_frames",
+    "frames_file",
+    "frames_sha256",
+    "build",
+    "device",
+    "display",
+    "scenario",
+    "instrumentation",
+    "columns"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^1\\.[0-9]+$"
+    },
+    "run_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]{1,64}$"
+    },
+    "status": {
+      "enum": [
+        "completed",
+        "aborted"
+      ]
+    },
+    "abort_reason": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "context": {
+      "enum": [
+        "player",
+        "editor"
+      ]
+    },
+    "started_at_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "ended_at_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "frame_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "warmup_frames": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "frames_file": {
+      "const": "frames.csv"
+    },
+    "frames_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "build": {
+      "$ref": "#/$defs/build"
+    },
+    "device": {
+      "$ref": "#/$defs/device"
+    },
+    "display": {
+      "$ref": "#/$defs/display"
+    },
+    "scenario": {
+      "$ref": "#/$defs/scenario"
+    },
+    "instrumentation": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "profiler_binary_log",
+          "renderdoc",
+          "nsight",
+          "presentmon"
+        ]
+      }
+    },
+    "columns": {
+      "type": "array",
+      "minItems": 4,
+      "items": {
+        "$ref": "#/$defs/column"
+      }
+    }
+  },
+  "if": {
+    "properties": {
+      "status": {
+        "const": "aborted"
+      }
+    }
+  },
+  "then": {
+    "required": [
+      "abort_reason"
+    ],
+    "properties": {
+      "abort_reason": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "$defs": {
+    "build": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "unity_version",
+        "build_id",
+        "development_build",
+        "scripting_backend",
+        "graphics_api",
+        "render_pipeline",
+        "frame_timing_stats",
+        "incremental_gc"
+      ],
+      "properties": {
+        "unity_version": {
+          "type": "string",
+          "pattern": "^[0-9]{4}\\.[0-9]+\\.[0-9]+[abfp][0-9]+$"
+        },
+        "build_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "development_build": {
+          "type": "boolean"
+        },
+        "scripting_backend": {
+          "enum": [
+            "mono",
+            "il2cpp"
+          ]
+        },
+        "graphics_api": {
+          "enum": [
+            "Direct3D11",
+            "Direct3D12",
+            "Vulkan",
+            "OpenGLCore",
+            "Metal",
+            "Null"
+          ]
+        },
+        "render_pipeline": {
+          "enum": [
+            "builtin",
+            "urp",
+            "hdrp",
+            "custom"
+          ]
+        },
+        "frame_timing_stats": {
+          "type": "boolean"
+        },
+        "incremental_gc": {
+          "type": "boolean"
+        }
+      }
+    },
+    "device": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "os",
+        "cpu",
+        "cpu_logical_cores",
+        "system_memory_mb",
+        "gpu_name",
+        "gpu_memory_mb",
+        "gpu_driver"
+      ],
+      "properties": {
+        "os": {
+          "type": "string"
+        },
+        "cpu": {
+          "type": "string"
+        },
+        "cpu_logical_cores": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "system_memory_mb": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "gpu_name": {
+          "type": "string"
+        },
+        "gpu_memory_mb": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "gpu_driver": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "display": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "width",
+        "height",
+        "fullscreen_mode",
+        "vsync_count",
+        "target_frame_rate",
+        "quality_level"
+      ],
+      "properties": {
+        "width": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "fullscreen_mode": {
+          "enum": [
+            "ExclusiveFullScreen",
+            "FullScreenWindow",
+            "MaximizedWindow",
+            "Windowed"
+          ]
+        },
+        "vsync_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4
+        },
+        "target_frame_rate": {
+          "type": "integer",
+          "minimum": -1
+        },
+        "quality_level": {
+          "type": "string"
+        }
+      }
+    },
+    "scenario": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "seed",
+        "params"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "seed": {
+          "type": "integer"
+        },
+        "params": {
+          "type": "object"
+        }
+      }
+    },
+    "column": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "unit",
+        "availability",
+        "source"
+      ],
+      "properties": {
+        "name": {
+          "enum": [
+            "frame_index",
+            "timestamp_ns",
+            "frame_time_ms",
+            "cpu_main_thread_ms",
+            "cpu_render_thread_ms",
+            "cpu_present_wait_ms",
+            "gpu_frame_time_ms",
+            "gc_alloc_bytes",
+            "gc_used_bytes",
+            "gc_reserved_bytes",
+            "gc_collection_count",
+            "total_used_bytes",
+            "total_reserved_bytes",
+            "system_used_bytes",
+            "draw_calls",
+            "setpass_calls",
+            "batches",
+            "triangles",
+            "vertices",
+            "scenario_marker"
+          ]
+        },
+        "unit": {
+          "enum": [
+            "index",
+            "ns",
+            "ms",
+            "bytes",
+            "count",
+            "id"
+          ]
+        },
+        "availability": {
+          "enum": [
+            "measured",
+            "unsupported"
+          ]
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}
