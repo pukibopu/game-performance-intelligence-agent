@@ -9,6 +9,7 @@ unity/**/[Uu]ser[Ss]ettings/
 unity/**/[Mm]emoryCaptures/
 unity/**/*.csproj
 unity/**/*.sln
+unity/**/.vsconfig
 unity/**/*.pidb.meta
 unity/**/*.pdb.meta
 unity/**/*.mdb.meta

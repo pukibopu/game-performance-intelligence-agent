@@ -317,6 +317,9 @@
             "batches",
             "triangles",
             "vertices",
+            "unity_frame_count",
+            "cpu_frame_time_ms",
+            "gc_collect_ms",
             "scenario_marker"
           ]
         },

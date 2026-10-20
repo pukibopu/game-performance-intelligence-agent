@@ -1,0 +1,21 @@
+{
+  "name": "Gpia.Benchmark.Editor",
+  "rootNamespace": "Gpia.Benchmark.Editor",
+  "references": [
+    "Gpia.Benchmark",
+    "Gpia.Collector",
+    "Unity.RenderPipelines.Core.Runtime",
+    "Unity.RenderPipelines.Universal.Runtime"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}
