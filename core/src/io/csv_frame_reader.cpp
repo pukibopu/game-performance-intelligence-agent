@@ -11,6 +11,7 @@
 #include <variant>
 
 #include "gpia/io/file_io.hpp"
+#include "gpia/io/text.hpp"
 
 namespace gpia
 {
@@ -159,21 +160,9 @@ void split_fields(std::string_view line, std::vector<std::string_view>& out)
     }
 }
 
-// 不可信的单元格内容截断并替换不可打印字节后再写进消息
 std::string quoted(std::string_view cell)
 {
-    constexpr std::size_t kMaxShown = 32;
-    std::string text = "'";
-    for (const char c : cell.substr(0, kMaxShown))
-    {
-        text.push_back(c >= 0x20 && c <= 0x7E ? c : '?');
-    }
-    if (cell.size() > kMaxShown)
-    {
-        text.append("...");
-    }
-    text.push_back('\'');
-    return text;
+    return quote_untrusted(cell);
 }
 
 class LineCursor
