@@ -349,16 +349,20 @@ def build_cases() -> list[Case]:
         ),
         case_steady(
             "gc_marker_timing",
-            "Schema 1.1 with GC.Collect timing: one hitch is mostly GC, the other is not.",
+            "Schema 1.1: hitches mostly in GC.Collect, with a 0 ms marker, and mostly not GC.",
             8,
             Workload(
                 count=300,
-                collections=frozenset({90, 210}),
-                collect_share=((90, 0.9), (210, 0.1)),
+                collections=frozenset({90, 150, 210}),
+                collect_share=((90, 0.9), (150, 0.0), (210, 0.1)),
             ),
             warmup_frames=20,
             columns=COLUMNS_V11,
-            collection_levels={90: "evidence_backed_diagnosis", 210: "hypothesis"},
+            collection_levels={
+                90: "evidence_backed_diagnosis",
+                150: "hypothesis",
+                210: "hypothesis",
+            },
         ),
         case_corrupt_rows(),
         Case(

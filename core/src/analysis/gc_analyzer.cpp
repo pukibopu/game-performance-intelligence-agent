@@ -242,7 +242,20 @@ void analyze_gc(std::span<const FrameRecord> frames, const GcAllocConfig& config
                  {"delta", as_int(after - before)}}));
             fd.metrics.emplace_back("freed_bytes", static_cast<double>(before - after));
         }
-        if (f.gc_collect_ms)
+        if (f.gc_collect_ms && has_collection && gc_ms <= 0.0)
+        {
+            // 实测 IL2CPP 不发出 GC.Collect marker，回收次数增加却记为 0 说明这一列覆盖不到这次回收
+            fd.evidence_ids.push_back(ledger.add_evidence(
+                EvidenceType::DataAvailability,
+                std::format("gc_collect_ms is 0 on frame {} although gc_collection_count increased",
+                            h.frame_index),
+                FrameRange{.first = h.frame_index, .last = h.frame_index},
+                {{"column", as_text("gc_collect_ms")},
+                 {"status", as_text("not_covering_collection")}}));
+            fd.missing_evidence = {std::format(
+                "a GC pause measurement that covers this runtime for frame {}", h.frame_index)};
+        }
+        else if (f.gc_collect_ms)
         {
             fd.metrics.emplace_back("gc_collect_ms", gc_ms);
             fd.evidence_ids.push_back(ledger.add_evidence(

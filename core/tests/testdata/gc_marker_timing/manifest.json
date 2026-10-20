@@ -9,7 +9,7 @@
   "frame_count": 300,
   "warmup_frames": 20,
   "frames_file": "frames.csv",
-  "frames_sha256": "cc21827dea322f434c17fa41d9c444f2690723696cb76baaf3c2baa2065ae0df",
+  "frames_sha256": "057c3a1af906ebff41cb13560c88c236f31d34d7bed1f33b8591de33d5e57ded",
   "build": {
     "unity_version": "2022.3.62f3",
     "build_id": "synthetic",
