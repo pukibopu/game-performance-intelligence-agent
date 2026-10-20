@@ -34,6 +34,7 @@ target_link_libraries(gpia_core_tests PRIVATE
 # 测试通过绝对路径读取仓库里的固定数据
 target_compile_definitions(gpia_core_tests PRIVATE
     GPIA_TESTDATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/testdata"
+    GPIA_GOLDEN_DIR="${PROJECT_SOURCE_DIR}/../datasets/golden"
     GPIA_SCHEMAS_DIR="${PROJECT_SOURCE_DIR}/../schemas")
 
 include(GoogleTest)

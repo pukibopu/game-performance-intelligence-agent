@@ -209,6 +209,55 @@ TEST(Analysis, ConfigOverridesChangeDetection)
     EXPECT_TRUE(frames_of(report, FindingKind::FrameHitch).empty()); // 三倍尖峰低于十倍阈值
 }
 
+// 真实 Player 采集的样本，固定下来防止分析规则在真实数据上悄悄退化
+TEST(Analysis, GoldenPlayerRunsKeepTheirConclusions)
+{
+    const fs::path golden{GPIA_GOLDEN_DIR};
+    struct Case
+    {
+        const char* name;
+        FindingKind kind;
+        std::size_t injected;
+        std::optional<EvidenceLevel> gc_level;
+    };
+    const Case cases[] = {
+        {"cpu_spike_mono_release", FindingKind::FrameHitch, 10, std::nullopt},
+        {"gc_forced_mono_dev", FindingKind::GcCollectionHitch, 10,
+         EvidenceLevel::EvidenceBackedDiagnosis},
+        {"gc_forced_il2cpp_release", FindingKind::GcCollectionHitch, 10, EvidenceLevel::Hypothesis},
+    };
+    for (const Case& c : cases)
+    {
+        gpia::Diagnostics d;
+        const auto run = gpia::load_run(golden / c.name, d);
+        ASSERT_TRUE(run) << c.name;
+        const auto report = gpia::analyze_run(*run, {}, d);
+
+        std::set<std::uint64_t> injected;
+        for (const auto& f : run->table.frames)
+        {
+            if (f.scenario_marker != 0 && f.frame_index >= run->manifest.warmup_frames)
+            {
+                injected.insert(f.frame_index);
+            }
+        }
+        ASSERT_EQ(injected.size(), c.injected) << c.name;
+        std::size_t matched = 0;
+        for (const auto& f : report.findings)
+        {
+            if (f.kind == c.kind && injected.contains(f.frame_range->first))
+            {
+                ++matched;
+                if (c.gc_level)
+                {
+                    EXPECT_EQ(f.level, *c.gc_level) << c.name;
+                }
+            }
+        }
+        EXPECT_EQ(matched, c.injected) << c.name;
+    }
+}
+
 TEST(Analysis, InvalidConfigIsRejected)
 {
     gpia::Diagnostics d;
