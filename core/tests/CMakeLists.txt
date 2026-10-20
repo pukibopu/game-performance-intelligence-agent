@@ -6,7 +6,7 @@ FetchContent_Declare(googletest
     GIT_SHALLOW    TRUE
     SYSTEM)
 
-# MSVC: link GoogleTest against the same dynamic CRT (/MD) as our code
+# MSVC 下让 GoogleTest 与我们的代码使用同一个动态 CRT
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 set(BUILD_GMOCK OFF CACHE BOOL "" FORCE)
 set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
@@ -15,7 +15,8 @@ FetchContent_MakeAvailable(googletest)
 
 add_executable(gpia_core_tests
     version_test.cpp
-    frame_record_test.cpp)
+    frame_record_test.cpp
+    result_test.cpp)
 target_link_libraries(gpia_core_tests PRIVATE gpia_core gpia_warnings GTest::gtest_main)
 
 include(GoogleTest)
