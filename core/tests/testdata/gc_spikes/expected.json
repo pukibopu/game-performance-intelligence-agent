@@ -1,0 +1,54 @@
+{
+  "case": "gc_spikes",
+  "description": "8 MiB allocations without hitches plus two GC collections with hitches.",
+  "rows_written": 300,
+  "valid_rows": 300,
+  "warmup_frames": 20,
+  "analyzed_frames": 280,
+  "unsupported_columns": [],
+  "fatal_error": null,
+  "injected": {
+    "cpu_spikes": [],
+    "alloc_spikes": [
+      40,
+      100,
+      160,
+      220,
+      280
+    ],
+    "collections": [
+      70,
+      190
+    ],
+    "warmup_spike": null
+  },
+  "expected": {
+    "hitch_frames": [
+      70,
+      190
+    ],
+    "gc_alloc_spike_frames": [
+      40,
+      100,
+      160,
+      220,
+      280
+    ],
+    "gc_collection_frames": [
+      70,
+      190
+    ],
+    "memory_growth": false,
+    "diagnostics": []
+  },
+  "frame_time_ms": {
+    "count": 280,
+    "mean": 17.007464285714285,
+    "min": 16.31,
+    "max": 41.758,
+    "p50": 16.6785,
+    "p95": 16.978550000000002,
+    "p99": 25.048759999999998,
+    "stddev": 2.3702741244934553
+  }
+}

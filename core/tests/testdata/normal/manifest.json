@@ -1,0 +1,168 @@
+{
+  "schema_version": "1.0",
+  "run_id": "synthetic-normal",
+  "status": "completed",
+  "abort_reason": null,
+  "context": "player",
+  "started_at_utc": "2026-10-20T00:00:00Z",
+  "ended_at_utc": "2026-10-20T00:00:10Z",
+  "frame_count": 300,
+  "warmup_frames": 20,
+  "frames_file": "frames.csv",
+  "frames_sha256": "5b6c20129205b9fe06c62d18a505797a6822c9bb635c22451f135802e69cd1fd",
+  "build": {
+    "unity_version": "2022.3.62f3",
+    "build_id": "synthetic",
+    "development_build": true,
+    "scripting_backend": "mono",
+    "graphics_api": "Direct3D11",
+    "render_pipeline": "urp",
+    "frame_timing_stats": true,
+    "incremental_gc": true
+  },
+  "device": {
+    "os": "synthetic",
+    "cpu": "synthetic",
+    "cpu_logical_cores": 16,
+    "system_memory_mb": 16288,
+    "gpu_name": "synthetic",
+    "gpu_memory_mb": 8192,
+    "gpu_driver": null
+  },
+  "display": {
+    "width": 1280,
+    "height": 720,
+    "fullscreen_mode": "Windowed",
+    "vsync_count": 0,
+    "target_frame_rate": 60,
+    "quality_level": "High"
+  },
+  "scenario": {
+    "name": "synthetic_normal",
+    "seed": 0,
+    "params": {}
+  },
+  "instrumentation": [],
+  "columns": [
+    {
+      "name": "frame_index",
+      "unit": "index",
+      "availability": "measured",
+      "source": "synthetic"
+    },
+    {
+      "name": "timestamp_ns",
+      "unit": "ns",
+      "availability": "measured",
+      "source": "synthetic"
+    },
+    {
+      "name": "frame_time_ms",
+      "unit": "ms",
+      "availability": "measured",
+      "source": "synthetic"
+    },
+    {
+      "name": "cpu_main_thread_ms",
+      "unit": "ms",
+      "availability": "measured",
+      "source": "synthetic"
+    },
+    {
+      "name": "cpu_render_thread_ms",
+      "unit": "ms",
+      "availability": "measured",
+      "source": "synthetic"
+    },
+    {
+      "name": "cpu_present_wait_ms",
+      "unit": "ms",
+      "availability": "measured",
+      "source": "synthetic"
+    },
+    {
+      "name": "gpu_frame_time_ms",
+      "unit": "ms",
+      "availability": "measured",
+      "source": "synthetic"
+    },
+    {
+      "name": "gc_alloc_bytes",
+      "unit": "bytes",
+      "availability": "measured",
+      "source": "synthetic"
+    },
+    {
+      "name": "gc_used_bytes",
+      "unit": "bytes",
+      "availability": "measured",
+      "source": "synthetic"
+    },
+    {
+      "name": "gc_reserved_bytes",
+      "unit": "bytes",
+      "availability": "measured",
+      "source": "synthetic"
+    },
+    {
+      "name": "gc_collection_count",
+      "unit": "count",
+      "availability": "measured",
+      "source": "synthetic"
+    },
+    {
+      "name": "total_used_bytes",
+      "unit": "bytes",
+      "availability": "measured",
+      "source": "synthetic"
+    },
+    {
+      "name": "total_reserved_bytes",
+      "unit": "bytes",
+      "availability": "measured",
+      "source": "synthetic"
+    },
+    {
+      "name": "system_used_bytes",
+      "unit": "bytes",
+      "availability": "measured",
+      "source": "synthetic"
+    },
+    {
+      "name": "draw_calls",
+      "unit": "count",
+      "availability": "measured",
+      "source": "synthetic"
+    },
+    {
+      "name": "setpass_calls",
+      "unit": "count",
+      "availability": "measured",
+      "source": "synthetic"
+    },
+    {
+      "name": "batches",
+      "unit": "count",
+      "availability": "measured",
+      "source": "synthetic"
+    },
+    {
+      "name": "triangles",
+      "unit": "count",
+      "availability": "measured",
+      "source": "synthetic"
+    },
+    {
+      "name": "vertices",
+      "unit": "count",
+      "availability": "measured",
+      "source": "synthetic"
+    },
+    {
+      "name": "scenario_marker",
+      "unit": "id",
+      "availability": "measured",
+      "source": "synthetic"
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "case": "missing_columns",
+  "description": "Non-development build: gc_alloc_bytes unsupported and a mid-run FrameTiming gap.",
+  "rows_written": 300,
+  "valid_rows": 300,
+  "warmup_frames": 20,
+  "analyzed_frames": 280,
+  "unsupported_columns": [
+    "gc_alloc_bytes"
+  ],
+  "fatal_error": null,
+  "injected": {
+    "cpu_spikes": [],
+    "alloc_spikes": [
+      60,
+      180
+    ],
+    "collections": [
+      120,
+      240
+    ],
+    "warmup_spike": null
+  },
+  "expected": {
+    "hitch_frames": [
+      120,
+      240
+    ],
+    "gc_alloc_spike_frames": [],
+    "gc_collection_frames": [
+      120,
+      240
+    ],
+    "memory_growth": false,
+    "diagnostics": []
+  },
+  "frame_time_ms": {
+    "count": 280,
+    "mean": 16.91275,
+    "min": 16.23,
+    "max": 41.667,
+    "p50": 16.6685,
+    "p95": 16.95605,
+    "p99": 24.828109999999985,
+    "stddev": 2.224950905583776
+  }
+}

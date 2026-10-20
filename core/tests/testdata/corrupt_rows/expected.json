@@ -1,0 +1,94 @@
+{
+  "case": "corrupt_rows",
+  "description": "One of each malformed-row kind; the last line is truncated without a newline.",
+  "rows_written": 58,
+  "valid_rows": 51,
+  "warmup_frames": 0,
+  "analyzed_frames": 51,
+  "unsupported_columns": [],
+  "fatal_error": null,
+  "injected": {
+    "cpu_spikes": [],
+    "alloc_spikes": [],
+    "collections": [],
+    "warmup_spike": null
+  },
+  "expected": {
+    "hitch_frames": [],
+    "gc_alloc_spike_frames": [],
+    "gc_collection_frames": [],
+    "memory_growth": false,
+    "diagnostics": [
+      {
+        "line": 12,
+        "code": "CSV_INVALID_NUMBER",
+        "field": "frame_time_ms",
+        "row_dropped": true
+      },
+      {
+        "line": 16,
+        "code": "CSV_INVALID_NUMBER",
+        "field": "draw_calls",
+        "row_dropped": false
+      },
+      {
+        "line": 22,
+        "code": "CSV_INVALID_NUMBER",
+        "field": "gc_used_bytes",
+        "row_dropped": false
+      },
+      {
+        "line": 27,
+        "code": "CSV_INVALID_NUMBER",
+        "field": "frame_time_ms",
+        "row_dropped": true
+      },
+      {
+        "line": 32,
+        "code": "CSV_OUT_OF_RANGE",
+        "field": "frame_time_ms",
+        "row_dropped": true
+      },
+      {
+        "line": 35,
+        "code": "CSV_MISSING_REQUIRED",
+        "field": "frame_time_ms",
+        "row_dropped": true
+      },
+      {
+        "line": 42,
+        "code": "TIMESTAMP_NOT_INCREASING",
+        "field": "timestamp_ns",
+        "row_dropped": true
+      },
+      {
+        "line": 52,
+        "code": "FRAME_INDEX_GAP",
+        "field": "frame_index",
+        "row_dropped": false
+      },
+      {
+        "line": 55,
+        "code": "CSV_COLUMN_COUNT_MISMATCH",
+        "field": null,
+        "row_dropped": true
+      },
+      {
+        "line": 59,
+        "code": "CSV_COLUMN_COUNT_MISMATCH",
+        "field": null,
+        "row_dropped": true
+      }
+    ]
+  },
+  "frame_time_ms": {
+    "count": 51,
+    "mean": 16.662333333333333,
+    "min": 16.41,
+    "max": 17.088,
+    "p50": 16.646,
+    "p95": 16.883499999999998,
+    "p99": 17.0285,
+    "stddev": 0.15436886560011626
+  }
+}

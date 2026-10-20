@@ -1,0 +1,24 @@
+{
+  "case": "header_only",
+  "description": "A header and no data rows.",
+  "rows_written": 0,
+  "valid_rows": 0,
+  "warmup_frames": 0,
+  "analyzed_frames": 0,
+  "unsupported_columns": [],
+  "fatal_error": null,
+  "injected": {
+    "cpu_spikes": [],
+    "alloc_spikes": [],
+    "collections": [],
+    "warmup_spike": null
+  },
+  "expected": {
+    "hitch_frames": [],
+    "gc_alloc_spike_frames": [],
+    "gc_collection_frames": [],
+    "memory_growth": false,
+    "diagnostics": []
+  },
+  "frame_time_ms": null
+}

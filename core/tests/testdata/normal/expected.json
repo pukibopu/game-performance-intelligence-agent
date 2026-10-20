@@ -1,0 +1,33 @@
+{
+  "case": "normal",
+  "description": "Steady 60 Hz frames with no injected workload.",
+  "rows_written": 300,
+  "valid_rows": 300,
+  "warmup_frames": 20,
+  "analyzed_frames": 280,
+  "unsupported_columns": [],
+  "fatal_error": null,
+  "injected": {
+    "cpu_spikes": [],
+    "alloc_spikes": [],
+    "collections": [],
+    "warmup_spike": null
+  },
+  "expected": {
+    "hitch_frames": [],
+    "gc_alloc_spike_frames": [],
+    "gc_collection_frames": [],
+    "memory_growth": false,
+    "diagnostics": []
+  },
+  "frame_time_ms": {
+    "count": 280,
+    "mean": 16.659603571428573,
+    "min": 16.189,
+    "max": 17.074,
+    "p50": 16.659,
+    "p95": 16.91255,
+    "p99": 17.03884,
+    "stddev": 0.15393594763037732
+  }
+}

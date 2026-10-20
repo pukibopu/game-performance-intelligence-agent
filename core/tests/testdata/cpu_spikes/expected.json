@@ -1,0 +1,45 @@
+{
+  "case": "cpu_spikes",
+  "description": "CPU-bound spikes every 60 frames; a warm-up spike at frame 5 must be ignored.",
+  "rows_written": 300,
+  "valid_rows": 300,
+  "warmup_frames": 20,
+  "analyzed_frames": 280,
+  "unsupported_columns": [],
+  "fatal_error": null,
+  "injected": {
+    "cpu_spikes": [
+      30,
+      90,
+      150,
+      210,
+      270
+    ],
+    "alloc_spikes": [],
+    "collections": [],
+    "warmup_spike": 5
+  },
+  "expected": {
+    "hitch_frames": [
+      30,
+      90,
+      150,
+      210,
+      270
+    ],
+    "gc_alloc_spike_frames": [],
+    "gc_collection_frames": [],
+    "memory_growth": false,
+    "diagnostics": []
+  },
+  "frame_time_ms": {
+    "count": 280,
+    "mean": 17.25561785714286,
+    "min": 16.297,
+    "max": 51.063,
+    "p50": 16.658,
+    "p95": 16.9343,
+    "p99": 49.66097,
+    "stddev": 4.4414418814231835
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "case": "memory_growth",
+  "description": "Managed memory retained every frame with no collections.",
+  "rows_written": 900,
+  "valid_rows": 900,
+  "warmup_frames": 20,
+  "analyzed_frames": 880,
+  "unsupported_columns": [],
+  "fatal_error": null,
+  "injected": {
+    "cpu_spikes": [],
+    "alloc_spikes": [],
+    "collections": [],
+    "warmup_spike": null
+  },
+  "expected": {
+    "hitch_frames": [],
+    "gc_alloc_spike_frames": [],
+    "gc_collection_frames": [],
+    "memory_growth": true,
+    "diagnostics": []
+  },
+  "frame_time_ms": {
+    "count": 880,
+    "mean": 16.666320454545453,
+    "min": 16.195,
+    "max": 17.23,
+    "p50": 16.6675,
+    "p95": 16.90415,
+    "p99": 17.00368,
+    "stddev": 0.14804950142178117
+  }
+}
