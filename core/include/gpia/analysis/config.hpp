@@ -14,7 +14,7 @@ namespace gpia
 struct HitchConfig
 {
     std::size_t window = 61;
-    double k = 2.0;
+    double k = 1.5; // 实测 60 帧上限下 27 毫秒的 GC 帧已经掉帧，k 取 2 会漏掉它们
     std::optional<double> floor_ms; // 为空时取目标帧时间的 1.5 倍，帧率不限时为 0
 };
 

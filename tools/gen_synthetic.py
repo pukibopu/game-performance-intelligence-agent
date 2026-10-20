@@ -112,7 +112,7 @@ def generate_rows(rng: random.Random, w: Workload) -> list[Row]:
             cpu_ratio = 0.92
             marker = MARKER_CPU
         if i in w.alloc_spikes:
-            frame_ms *= 1.5
+            frame_ms *= 1.25
             alloc = 8 * MIB
             marker = MARKER_ALLOC
         if i in w.collections:
