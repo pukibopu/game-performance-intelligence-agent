@@ -17,7 +17,9 @@ add_executable(gpia_core_tests
     version_test.cpp
     frame_record_test.cpp
     result_test.cpp
-    diagnostics_test.cpp)
+    diagnostics_test.cpp
+    schema_version_test.cpp
+    session_manifest_test.cpp)
 target_link_libraries(gpia_core_tests PRIVATE gpia_core gpia_warnings GTest::gtest_main)
 
 include(GoogleTest)
