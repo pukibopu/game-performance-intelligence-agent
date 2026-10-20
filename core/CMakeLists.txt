@@ -10,7 +10,7 @@ option(GPIA_WARNINGS_AS_ERRORS "Treat compiler warnings as errors" OFF)
 
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# ---------- Warning settings shared by our own targets (not by third-party code) ----------
+# ---------- 只作用于本项目 target 的警告设置 ----------
 add_library(gpia_warnings INTERFACE)
 target_compile_options(gpia_warnings INTERFACE
     $<$<CXX_COMPILER_ID:MSVC>:/W4 /permissive- /utf-8 /Zc:__cplusplus>
@@ -22,21 +22,22 @@ if(GPIA_WARNINGS_AS_ERRORS)
         $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Werror>)
 endif()
 
-# ---------- Core library ----------
+# ---------- 核心库 ----------
 add_library(gpia_core STATIC
-    src/version.cpp)
+    src/version.cpp
+    src/diagnostics.cpp)
 
 target_include_directories(gpia_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_compile_features(gpia_core PUBLIC cxx_std_20)
 target_compile_definitions(gpia_core PRIVATE GPIA_CORE_VERSION="${PROJECT_VERSION}")
 target_link_libraries(gpia_core PRIVATE gpia_warnings)
 
-# ---------- CLI ----------
+# ---------- 命令行程序 ----------
 add_executable(gpia_cli cli/main.cpp)
 set_target_properties(gpia_cli PROPERTIES OUTPUT_NAME gpia-core)
 target_link_libraries(gpia_cli PRIVATE gpia_core gpia_warnings)
 
-# ---------- Tests ----------
+# ---------- 测试 ----------
 if(GPIA_BUILD_TESTS)
     enable_testing()
     add_subdirectory(tests)
