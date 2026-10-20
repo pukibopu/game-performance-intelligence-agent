@@ -27,7 +27,9 @@ add_library(gpia_core STATIC
     src/version.cpp
     src/diagnostics.cpp
     src/schema_version.cpp
-    src/model/session_manifest.cpp)
+    src/model/session_manifest.cpp
+    src/io/file_io.cpp
+    src/io/csv_frame_reader.cpp)
 
 target_include_directories(gpia_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_compile_features(gpia_core PUBLIC cxx_std_20)

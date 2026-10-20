@@ -19,8 +19,14 @@ add_executable(gpia_core_tests
     result_test.cpp
     diagnostics_test.cpp
     schema_version_test.cpp
-    session_manifest_test.cpp)
+    session_manifest_test.cpp
+    csv_frame_reader_test.cpp)
 target_link_libraries(gpia_core_tests PRIVATE gpia_core gpia_warnings GTest::gtest_main)
+
+# 测试通过绝对路径读取仓库里的固定数据
+target_compile_definitions(gpia_core_tests PRIVATE
+    GPIA_TESTDATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/testdata"
+    GPIA_SCHEMAS_DIR="${PROJECT_SOURCE_DIR}/../schemas")
 
 include(GoogleTest)
 gtest_discover_tests(gpia_core_tests)
