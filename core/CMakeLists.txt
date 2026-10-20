@@ -17,7 +17,12 @@ FetchContent_Declare(nlohmann_json
     URL_HASH SHA256=42f6e95cad6ec532fd372391373363b62a14af6d771056dbfc86160e6dfff7aa
     DOWNLOAD_EXTRACT_TIMESTAMP TRUE
     SYSTEM)
-FetchContent_MakeAvailable(nlohmann_json)
+FetchContent_Declare(cli11
+    GIT_REPOSITORY https://github.com/CLIUtils/CLI11.git
+    GIT_TAG        v2.7.2
+    GIT_SHALLOW    TRUE
+    SYSTEM)
+FetchContent_MakeAvailable(nlohmann_json cli11)
 
 # ---------- 只作用于本项目 target 的警告设置 ----------
 add_library(gpia_warnings INTERFACE)
@@ -37,6 +42,7 @@ add_library(gpia_core STATIC
     src/diagnostics.cpp
     src/schema_version.cpp
     src/model/session_manifest.cpp
+    src/model/report.cpp
     src/io/file_io.cpp
     src/io/text.cpp
     src/io/sha256.cpp
@@ -44,7 +50,15 @@ add_library(gpia_core STATIC
     src/io/manifest_reader.cpp
     src/io/run_loader.cpp
     src/stats/summary.cpp
-    src/detect/spike_detector.cpp)
+    src/detect/spike_detector.cpp
+    src/analysis/config.cpp
+    src/analysis/evidence_ledger.cpp
+    src/analysis/frame_analyzer.cpp
+    src/analysis/gc_analyzer.cpp
+    src/analysis/memory_analyzer.cpp
+    src/analysis/analyze.cpp
+    src/report/report_writer.cpp
+    src/report/markdown.cpp)
 
 target_include_directories(gpia_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_compile_features(gpia_core PUBLIC cxx_std_20)
@@ -54,7 +68,8 @@ target_link_libraries(gpia_core PRIVATE gpia_warnings nlohmann_json::nlohmann_js
 # ---------- 命令行程序 ----------
 add_executable(gpia_cli cli/main.cpp)
 set_target_properties(gpia_cli PROPERTIES OUTPUT_NAME gpia-core)
-target_link_libraries(gpia_cli PRIVATE gpia_core gpia_warnings)
+target_link_libraries(gpia_cli PRIVATE
+    gpia_core gpia_warnings nlohmann_json::nlohmann_json CLI11::CLI11)
 
 # ---------- 测试 ----------
 if(GPIA_BUILD_TESTS)

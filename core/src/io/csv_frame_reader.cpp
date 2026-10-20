@@ -381,6 +381,7 @@ Result<FrameTable> parse_frames_csv(std::string_view text, Diagnostics& diagnost
                                      " frames missing before frame_index " +
                                      std::to_string(record.frame_index),
                                  line_no, spec.name);
+                    ++table.frame_index_gaps;
                 }
                 last_index = record.frame_index;
             }

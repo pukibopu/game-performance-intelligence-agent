@@ -25,7 +25,8 @@ struct FrameTable
 {
     std::vector<std::string> header;
     std::vector<FrameRecord> frames;
-    std::uint64_t data_rows = 0; // 表头之后的非空行数，包含被丢弃的行
+    std::uint64_t data_rows = 0;        // 表头之后的非空行数，包含被丢弃的行
+    std::uint64_t frame_index_gaps = 0; // frame_index 出现跳号的次数
 };
 
 // 解析 frames.csv 文本，逐行问题记入 diagnostics，致命问题返回 Error

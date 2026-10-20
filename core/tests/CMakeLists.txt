@@ -25,7 +25,9 @@ add_executable(gpia_core_tests
     manifest_reader_test.cpp
     run_loader_test.cpp
     stats_test.cpp
-    spike_detector_test.cpp)
+    spike_detector_test.cpp
+    analysis_test.cpp
+    report_writer_test.cpp)
 target_link_libraries(gpia_core_tests PRIVATE
     gpia_core gpia_warnings GTest::gtest_main nlohmann_json::nlohmann_json)
 
@@ -36,3 +38,13 @@ target_compile_definitions(gpia_core_tests PRIVATE
 
 include(GoogleTest)
 gtest_discover_tests(gpia_core_tests)
+
+# 用 Python 按 JSON Schema 校验 CLI 产出的报告，机器上没有 uv 时跳过
+find_program(GPIA_UV uv)
+if(GPIA_UV)
+    add_test(NAME cli.reports_match_schema_and_ground_truth
+        COMMAND ${GPIA_UV} run --quiet ${PROJECT_SOURCE_DIR}/../tools/check_reports.py
+            --cli $<TARGET_FILE:gpia_cli>
+            --testdata ${CMAKE_CURRENT_SOURCE_DIR}/testdata
+            --schema ${PROJECT_SOURCE_DIR}/../schemas/analysis-report.v1.schema.json)
+endif()
