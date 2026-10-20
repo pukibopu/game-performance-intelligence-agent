@@ -6,10 +6,9 @@
 
 using gpia::FrameRecord;
 
-// ---------- compile-time properties ----------
-// Aggregate: built with designated initializers, no constructor boilerplate.
+// 聚合类型才能用指定初始化器构造
 static_assert(std::is_aggregate_v<FrameRecord>);
-// Trivially copyable: std::vector<FrameRecord> can relocate elements with memcpy when it grows.
+// 可平凡复制意味着 vector 扩容时可以按字节搬移元素
 static_assert(std::is_trivially_copyable_v<FrameRecord>);
 
 TEST(FrameRecord, DefaultConstructedHasNoOptionalValues)
@@ -35,7 +34,7 @@ TEST(FrameRecord, DesignatedInitializersSetOnlyNamedFields)
     EXPECT_EQ(r.frame_index, 2u);
     ASSERT_TRUE(r.gc_alloc_bytes.has_value());
     EXPECT_EQ(*r.gc_alloc_bytes, 8'388'608);
-    EXPECT_FALSE(r.cpu_main_thread_ms.has_value()); // not named -> stays empty, NOT zero
+    EXPECT_FALSE(r.cpu_main_thread_ms.has_value()); // 未指定的可选字段保持为空而不是 0
 }
 
 TEST(FrameRecord, MissingIsDifferentFromZero)
@@ -43,7 +42,7 @@ TEST(FrameRecord, MissingIsDifferentFromZero)
     const FrameRecord missing{};
     FrameRecord zero{};
     zero.gc_alloc_bytes = 0;
-    EXPECT_NE(missing, zero); // "no data" and "measured 0 bytes" must never compare equal
+    EXPECT_NE(missing, zero); // 没有数据与测得 0 字节必须不相等
 }
 
 TEST(FrameRecord, CopiesAreIndependent)
@@ -51,11 +50,11 @@ TEST(FrameRecord, CopiesAreIndependent)
     const FrameRecord a{.frame_index = 1, .frame_time_ms = 16.6};
     FrameRecord b = a;
     b.frame_time_ms = 33.3;
-    EXPECT_EQ(a.frame_time_ms, 16.6); // same literal, no arithmetic: exact compare is fine
+    EXPECT_EQ(a.frame_time_ms, 16.6); // 同一字面量且没有运算，可以精确比较
     EXPECT_NE(a, b);
 }
 
-
+// 每帧 AoS 开销，改列时必须有意识地更新这个数字
 TEST(FrameRecord, SizeIsDocumented)
 {
     EXPECT_EQ(sizeof(FrameRecord), 256u);
