@@ -14,8 +14,8 @@ set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
 add_executable(gpia_core_tests
-    version_test.cpp)
-
+    version_test.cpp
+    frame_record_test.cpp)
 target_link_libraries(gpia_core_tests PRIVATE gpia_core gpia_warnings GTest::gtest_main)
 
 include(GoogleTest)
