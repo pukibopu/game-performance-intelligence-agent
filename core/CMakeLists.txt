@@ -42,7 +42,9 @@ add_library(gpia_core STATIC
     src/io/sha256.cpp
     src/io/csv_frame_reader.cpp
     src/io/manifest_reader.cpp
-    src/io/run_loader.cpp)
+    src/io/run_loader.cpp
+    src/stats/summary.cpp
+    src/detect/spike_detector.cpp)
 
 target_include_directories(gpia_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_compile_features(gpia_core PUBLIC cxx_std_20)

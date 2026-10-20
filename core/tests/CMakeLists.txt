@@ -23,7 +23,9 @@ add_executable(gpia_core_tests
     csv_frame_reader_test.cpp
     sha256_test.cpp
     manifest_reader_test.cpp
-    run_loader_test.cpp)
+    run_loader_test.cpp
+    stats_test.cpp
+    spike_detector_test.cpp)
 target_link_libraries(gpia_core_tests PRIVATE
     gpia_core gpia_warnings GTest::gtest_main nlohmann_json::nlohmann_json)
 
