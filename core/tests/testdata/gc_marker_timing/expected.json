@@ -1,0 +1,46 @@
+{
+  "case": "gc_marker_timing",
+  "description": "Schema 1.1 with GC.Collect timing: one hitch is mostly GC, the other is not.",
+  "rows_written": 300,
+  "valid_rows": 300,
+  "warmup_frames": 20,
+  "analyzed_frames": 280,
+  "unsupported_columns": [],
+  "fatal_error": null,
+  "injected": {
+    "cpu_spikes": [],
+    "alloc_spikes": [],
+    "collections": [
+      90,
+      210
+    ],
+    "warmup_spike": null
+  },
+  "expected": {
+    "hitch_frames": [
+      90,
+      210
+    ],
+    "gc_alloc_spike_frames": [],
+    "gc_collection_frames": [
+      90,
+      210
+    ],
+    "gc_collection_levels": {
+      "90": "evidence_backed_diagnosis",
+      "210": "hypothesis"
+    },
+    "memory_growth": false,
+    "diagnostics": []
+  },
+  "frame_time_ms": {
+    "count": 280,
+    "mean": 16.83187142857143,
+    "min": 16.202,
+    "max": 41.637,
+    "p50": 16.655,
+    "p95": 16.9391,
+    "p99": 17.041909999999998,
+    "stddev": 2.111763591712175
+  }
+}

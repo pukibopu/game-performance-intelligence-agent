@@ -57,5 +57,5 @@ TEST(FrameRecord, CopiesAreIndependent)
 // 每帧 AoS 开销，改列时必须有意识地更新这个数字
 TEST(FrameRecord, SizeIsDocumented)
 {
-    EXPECT_EQ(sizeof(FrameRecord), 256u);
+    EXPECT_EQ(sizeof(FrameRecord), 296u); // v1.1 新增三个可选列，从 256 增加到 296
 }

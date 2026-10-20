@@ -15,6 +15,7 @@ namespace
 {
 
 constexpr double kMiB = 1024.0 * 1024.0;
+constexpr double kMarkerShare = 0.5;
 
 FindingSeverity severity_for_bytes(double bytes) noexcept
 {
@@ -162,7 +163,9 @@ void analyze_gc(std::span<const FrameRecord> frames, const GcAllocConfig& config
     {
         return;
     }
-    if (!previous_count)
+    const bool have_marker = std::ranges::any_of(
+        frames, [](const FrameRecord& f) { return f.gc_collect_ms.has_value(); });
+    if (!previous_count && !have_marker)
     {
         report_missing_column(ledger, "gc_collection_count",
                               "GC involvement in hitches cannot be assessed",
@@ -170,26 +173,58 @@ void analyze_gc(std::span<const FrameRecord> frames, const GcAllocConfig& config
         return;
     }
 
-    // 同帧只说明相关，没有 GC.Collect 计时就只能停在假设
     std::optional<std::string> marker_note;
     for (const HitchEvent& h : hitches)
     {
+        const std::size_t pos = position.at(h.frame_index);
+        const FrameRecord& f = frames[pos];
         const auto collected = collection_evidence.find(h.frame_index);
-        if (collected == collection_evidence.end())
+        const bool has_collection = collected != collection_evidence.end();
+        const double gc_ms = f.gc_collect_ms.value_or(0.0);
+        if (!has_collection && gc_ms <= 0.0)
         {
             continue;
         }
-        const std::size_t pos = position.at(h.frame_index);
-        const FrameRecord& f = frames[pos];
 
         Finding fd;
         fd.kind = FindingKind::GcCollectionHitch;
         fd.severity = FindingSeverity::Medium;
-        fd.level = EvidenceLevel::Hypothesis;
         fd.frame_range = FrameRange{.first = h.frame_index, .last = h.frame_index};
-        fd.title = std::format("Frame {} hitch coincides with a GC collection", h.frame_index);
         fd.metrics = {{"frame_time_ms", h.frame_time_ms}, {"baseline_ms", h.baseline_ms}};
-        fd.evidence_ids = {h.evidence_id, collected->second};
+        fd.evidence_ids = {h.evidence_id};
+        if (has_collection)
+        {
+            fd.evidence_ids.push_back(collected->second);
+        }
+        fd.rule = "gc.collection_hitch_same_frame";
+
+        // GC.Collect 实测耗时占到超额帧时间的一半以上，才把相关性升级为有证据的诊断
+        const double excess_ms = std::max(0.0, h.frame_time_ms - h.baseline_ms);
+        if (f.gc_collect_ms && gc_ms > 0.0 && excess_ms > 0.0 && gc_ms >= kMarkerShare * excess_ms)
+        {
+            fd.level = EvidenceLevel::EvidenceBackedDiagnosis;
+            fd.title = std::format("Frame {} hitch is mostly a blocking GC.Collect of {:.1f} ms",
+                                   h.frame_index, gc_ms);
+            fd.metrics.emplace_back("gc_collect_ms", gc_ms);
+            fd.metrics.emplace_back("gc_share_of_excess", gc_ms / excess_ms);
+            fd.evidence_ids.push_back(ledger.add_evidence(
+                EvidenceType::ThresholdCrossing,
+                std::format("GC.Collect took {:.1f} ms of the {:.1f} ms above the rolling median",
+                            gc_ms, excess_ms),
+                FrameRange{.first = h.frame_index, .last = h.frame_index},
+                {{"metric", as_text("gc_collect_ms")},
+                 {"value", as_real(gc_ms)},
+                 {"excess_ms", as_real(excess_ms)},
+                 {"threshold", as_real(kMarkerShare * excess_ms)}}));
+            fd.rule = "gc.collect_marker_share";
+            fd.rule_params = {{"min_share_of_excess", as_real(kMarkerShare)}};
+            ledger.add_finding(std::move(fd));
+            continue;
+        }
+
+        // 同帧只说明相关，没有足够的 GC.Collect 耗时就只能停在假设
+        fd.level = EvidenceLevel::Hypothesis;
+        fd.title = std::format("Frame {} hitch coincides with a GC collection", h.frame_index);
 
         if (pos > 0 && f.gc_used_bytes && frames[pos - 1].gc_used_bytes &&
             *f.gc_used_bytes < *frames[pos - 1].gc_used_bytes)
@@ -207,16 +242,35 @@ void analyze_gc(std::span<const FrameRecord> frames, const GcAllocConfig& config
                  {"delta", as_int(after - before)}}));
             fd.metrics.emplace_back("freed_bytes", static_cast<double>(before - after));
         }
-        if (!marker_note)
+        if (f.gc_collect_ms)
         {
-            marker_note = ledger.add_evidence(
-                EvidenceType::DataAvailability,
-                "GC.Collect marker duration is not recorded in frames schema v1", std::nullopt,
-                {{"source", as_text("GC.Collect marker")}, {"status", as_text("not_recorded")}});
+            fd.metrics.emplace_back("gc_collect_ms", gc_ms);
+            fd.evidence_ids.push_back(ledger.add_evidence(
+                EvidenceType::Statistic,
+                std::format(
+                    "GC.Collect took only {:.1f} ms of the {:.1f} ms above the rolling median",
+                    gc_ms, excess_ms),
+                FrameRange{.first = h.frame_index, .last = h.frame_index},
+                {{"metric", as_text("gc_collect_ms")},
+                 {"value", as_real(gc_ms)},
+                 {"excess_ms", as_real(excess_ms)}}));
+            fd.missing_evidence = {std::format(
+                "what else ran during frame {}, for example a profiler capture", h.frame_index)};
         }
-        fd.evidence_ids.push_back(*marker_note);
-        fd.missing_evidence = {
-            std::format("GC.Collect marker duration for frame {}", h.frame_index)};
+        else
+        {
+            if (!marker_note)
+            {
+                marker_note = ledger.add_evidence(
+                    EvidenceType::DataAvailability,
+                    "GC.Collect marker duration is not recorded in this run", std::nullopt,
+                    {{"source", as_text("GC.Collect marker")},
+                     {"status", as_text("not_recorded")}});
+            }
+            fd.evidence_ids.push_back(*marker_note);
+            fd.missing_evidence = {
+                std::format("GC.Collect marker duration for frame {}", h.frame_index)};
+        }
         if (!f.cpu_main_thread_ms)
         {
             fd.evidence_ids.push_back(ledger.add_evidence(
@@ -227,7 +281,6 @@ void analyze_gc(std::span<const FrameRecord> frames, const GcAllocConfig& config
             fd.missing_evidence.push_back(
                 std::format("cpu_main_thread_ms for frame {}", h.frame_index));
         }
-        fd.rule = "gc.collection_hitch_same_frame";
         ledger.add_finding(std::move(fd));
     }
 }

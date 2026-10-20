@@ -38,6 +38,11 @@ struct FrameRecord
     std::optional<std::int64_t> triangles;
     std::optional<std::int64_t> vertices;
 
+    // ---------- since 1.1 ----------
+    std::optional<double> cpu_frame_time_ms;
+    std::optional<double> gc_collect_ms; // GC.Collect marker 本帧耗时，没有回收时为 0
+    std::optional<std::int32_t> unity_frame_count;
+
     // ---------- 场景注入标记 ----------
     std::uint32_t scenario_marker = 0; // 0 表示本帧未注入负载
 

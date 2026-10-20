@@ -142,9 +142,15 @@ Result<AnalysisConfig> parse_analysis_config(std::string_view json_text, Diagnos
     }
     if (const json* cpu = r.section(root, "cpu"))
     {
-        r.warn_unknown(*cpu, "cpu.", {"window", "k"});
+        r.warn_unknown(*cpu, "cpu.", {"window", "k", "floor_ms"});
         r.count(*cpu, "window", "cpu.", config.cpu.window, 1);
         r.number(*cpu, "k", "cpu.", config.cpu.k, 1.0);
+        if (cpu->contains("floor_ms"))
+        {
+            double floor = 0.0;
+            r.number(*cpu, "floor_ms", "cpu.", floor, 0.0);
+            config.cpu.floor_ms = floor;
+        }
     }
     if (const json* gc = r.section(root, "gc_alloc"))
     {
@@ -174,10 +180,12 @@ std::string to_json_text(const AnalysisConfig& config)
 {
     json hitch{{"window", config.hitch.window}, {"k", config.hitch.k}};
     hitch["floor_ms"] = config.hitch.floor_ms ? json(*config.hitch.floor_ms) : json(nullptr);
+    json cpu{{"window", config.cpu.window}, {"k", config.cpu.k}};
+    cpu["floor_ms"] = config.cpu.floor_ms ? json(*config.cpu.floor_ms) : json(nullptr);
     const json root{
         {"min_frames", config.min_frames},
         {"hitch", hitch},
-        {"cpu", {{"window", config.cpu.window}, {"k", config.cpu.k}}},
+        {"cpu", cpu},
         {"gc_alloc", {{"k", config.gc_alloc.k}, {"min_bytes", config.gc_alloc.min_bytes}}},
         {"memory",
          {{"min_slope_mib_per_s", config.memory.min_slope_mib_per_s},

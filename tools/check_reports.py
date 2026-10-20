@@ -87,6 +87,15 @@ def check_case(
     for kind, frames in checks:
         if frames_of(report, kind) != frames:
             errors.append(f"{name}: {kind} frames {frames_of(report, kind)} != {frames}")
+    levels = {
+        str(f["frame_range"]["first"]): f["evidence_level"]
+        for f in report["findings"]
+        if f["kind"] == "gc_collection_hitch"
+    }
+    if levels != truth["gc_collection_levels"]:
+        errors.append(
+            f"{name}: gc_collection_hitch levels {levels} != {truth['gc_collection_levels']}"
+        )
     grew = bool(frames_of(report, "memory_growth"))
     if grew != truth["memory_growth"]:
         errors.append(f"{name}: memory_growth {grew} != {truth['memory_growth']}")

@@ -105,6 +105,29 @@ TEST(Analysis, GcCollectionHitchStaysHypothesisWithoutMarkerTiming)
     }
 }
 
+TEST(Analysis, GcCollectionLevelsMatchGroundTruth)
+{
+    for (const std::string name : {"gc_spikes", "missing_columns", "gc_marker_timing"})
+    {
+        const auto [report, expected] = analyze(name);
+        const auto& want = expected["expected"]["gc_collection_levels"];
+        std::size_t seen = 0;
+        for (const auto& f : report.findings)
+        {
+            if (f.kind != FindingKind::GcCollectionHitch)
+            {
+                continue;
+            }
+            ++seen;
+            const std::string frame = std::to_string(f.frame_range->first);
+            ASSERT_TRUE(want.contains(frame)) << name << " frame " << frame;
+            EXPECT_EQ(std::string(gpia::to_string(f.level)), want[frame].get<std::string>())
+                << name << " frame " << frame;
+        }
+        EXPECT_EQ(seen, want.size()) << name;
+    }
+}
+
 TEST(Analysis, AllocationSpikeWithoutHitchIsNotBlamedOnGc)
 {
     const auto [report, expected] = analyze("gc_spikes");

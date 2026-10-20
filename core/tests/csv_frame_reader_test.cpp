@@ -278,7 +278,7 @@ TEST(CsvFrameReader, SchemaExampleParses)
 TEST(CsvFrameReader, KnownColumnsMatchFrameRecordOrder)
 {
     const auto columns = gpia::known_frame_columns();
-    ASSERT_EQ(columns.size(), 20u);
+    ASSERT_EQ(columns.size(), 23u);
     EXPECT_EQ(columns.front(), "frame_index");
     EXPECT_EQ(columns.back(), "scenario_marker");
 }

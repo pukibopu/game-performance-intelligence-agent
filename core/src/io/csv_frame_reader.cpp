@@ -34,7 +34,7 @@ struct ColumnSpec
 };
 
 // 列名到 FrameRecord 字段的唯一映射表
-constexpr std::array<ColumnSpec, 20> kColumns{{
+constexpr std::array<ColumnSpec, 23> kColumns{{
     {"frame_index", &FrameRecord::frame_index, true, false},
     {"timestamp_ns", &FrameRecord::timestamp_ns, true, false},
     {"frame_time_ms", &FrameRecord::frame_time_ms, true, true},
@@ -54,6 +54,9 @@ constexpr std::array<ColumnSpec, 20> kColumns{{
     {"batches", &FrameRecord::batches},
     {"triangles", &FrameRecord::triangles},
     {"vertices", &FrameRecord::vertices},
+    {"unity_frame_count", &FrameRecord::unity_frame_count},
+    {"cpu_frame_time_ms", &FrameRecord::cpu_frame_time_ms},
+    {"gc_collect_ms", &FrameRecord::gc_collect_ms},
     {"scenario_marker", &FrameRecord::scenario_marker, true, false},
 }};
 

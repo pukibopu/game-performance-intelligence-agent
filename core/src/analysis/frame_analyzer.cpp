@@ -175,7 +175,8 @@ void analyze_cpu(std::span<const FrameRecord> frames, const CpuConfig& config,
         std::string id;
     };
     std::vector<CpuEvent> events;
-    for (const auto& s : detect::rolling_median_spikes(values, config.window, config.k, 0.0))
+    for (const auto& s : detect::rolling_median_spikes(values, config.window, config.k,
+                                                       config.floor_ms.value_or(0.0)))
     {
         const std::uint64_t frame = frame_of[s.index];
         std::string id = ledger.add_evidence(EvidenceType::ThresholdCrossing,
@@ -218,7 +219,8 @@ void analyze_cpu(std::span<const FrameRecord> frames, const CpuConfig& config,
         }
         fd.rule = "cpu.rolling_median";
         fd.rule_params = {{"window", as_int(static_cast<std::int64_t>(config.window))},
-                          {"k", as_real(config.k)}};
+                          {"k", as_real(config.k)},
+                          {"floor_ms", as_real(config.floor_ms.value_or(0.0))}};
         ledger.add_finding(std::move(fd));
     }
 }

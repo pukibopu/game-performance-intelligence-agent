@@ -39,7 +39,7 @@ struct MetricColumn
 };
 
 // 计数器累计值、帧号和场景标记不是性能指标，所以不做汇总
-constexpr std::array<MetricColumn, 16> kMetricColumns{{
+constexpr std::array<MetricColumn, 18> kMetricColumns{{
     {"frame_time_ms", &read_metric<&FrameRecord::frame_time_ms>},
     {"cpu_main_thread_ms", &read_metric<&FrameRecord::cpu_main_thread_ms>},
     {"cpu_render_thread_ms", &read_metric<&FrameRecord::cpu_render_thread_ms>},
@@ -56,6 +56,8 @@ constexpr std::array<MetricColumn, 16> kMetricColumns{{
     {"batches", &read_metric<&FrameRecord::batches>},
     {"triangles", &read_metric<&FrameRecord::triangles>},
     {"vertices", &read_metric<&FrameRecord::vertices>},
+    {"cpu_frame_time_ms", &read_metric<&FrameRecord::cpu_frame_time_ms>},
+    {"gc_collect_ms", &read_metric<&FrameRecord::gc_collect_ms>},
 }};
 
 std::vector<ColumnSummary> summarize_columns(const std::vector<std::string>& header,
@@ -123,6 +125,11 @@ Report analyze_run(const LoadedRun& run, const AnalysisConfig& config,
     if (!effective.hitch.floor_ms)
     {
         effective.hitch.floor_ms = derive_floor_ms(run.manifest.display.target_frame_rate);
+    }
+    if (!effective.cpu.floor_ms)
+    {
+        // 主线程尖峰至少要占到半个帧预算才值得报告
+        effective.cpu.floor_ms = derive_floor_ms(run.manifest.display.target_frame_rate) / 3.0;
     }
     report.config_json = to_json_text(effective);
     report.summary = summarize_columns(run.table.header, analyzed);

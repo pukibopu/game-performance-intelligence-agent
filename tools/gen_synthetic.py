@@ -45,6 +45,13 @@ COLUMN_UNITS: dict[str, str] = {
     "scenario_marker": "id",
 }
 COLUMNS = list(COLUMN_UNITS)
+V11_COLUMN_UNITS: dict[str, str] = {
+    "unity_frame_count": "index",
+    "cpu_frame_time_ms": "ms",
+    "gc_collect_ms": "ms",
+}
+COLUMNS_V11 = [*COLUMNS[:-1], *V11_COLUMN_UNITS, "scenario_marker"]
+ALL_UNITS = {**COLUMN_UNITS, **V11_COLUMN_UNITS}
 TIMING_COLUMNS = (
     "cpu_main_thread_ms",
     "cpu_render_thread_ms",
@@ -64,6 +71,7 @@ class Workload:
     warmup_spike: int | None = None
     retained_bytes_per_frame: int = 0
     timing_gaps: frozenset[int] = frozenset()
+    collect_share: tuple[tuple[int, float], ...] = ()
 
 
 @dataclass
@@ -82,6 +90,8 @@ class Case:
     dropped_frames: frozenset[int] = frozenset()
     fatal_error: str | None = None
     memory_growth: bool = False
+    columns: list[str] = field(default_factory=lambda: list(COLUMNS))
+    collection_levels: dict[int, str] = field(default_factory=dict)
 
 
 def generate_rows(rng: random.Random, w: Workload) -> list[Row]:
@@ -118,6 +128,9 @@ def generate_rows(rng: random.Random, w: Workload) -> list[Row]:
         steady_ms = min(frame_ms, BASE_FRAME_MS * 1.02)
         timing_missing = i >= w.count - FRAME_TIMING_LATENCY or i in w.timing_gaps
         cpu_main = round(frame_ms * cpu_ratio, 3)
+        # GC.Collect 耗时按超额帧时间的给定比例生成，没有回收的帧为 0
+        share = dict(w.collect_share).get(i, 0.0)
+        gc_collect = round(share * (frame_ms - BASE_FRAME_MS), 3) if i in w.collections else 0.0
 
         rows.append(
             {
@@ -142,6 +155,9 @@ def generate_rows(rng: random.Random, w: Workload) -> list[Row]:
                 "batches": 120 + rng.randrange(-2, 3),
                 "triangles": 250_000 + rng.randrange(-500, 500),
                 "vertices": 410_000 + rng.randrange(-800, 800),
+                "unity_frame_count": 1000 + i,
+                "cpu_frame_time_ms": None if timing_missing else round(frame_ms * 0.99, 3),
+                "gc_collect_ms": gc_collect,
                 "scenario_marker": marker,
             }
         )
@@ -156,13 +172,15 @@ def format_cell(value: Cell) -> str:
     return str(value)
 
 
-def render_line(row: Row, overrides: dict[str, str] | None = None) -> str:
+def render_line(
+    row: Row, overrides: dict[str, str] | None = None, columns: list[str] = COLUMNS
+) -> str:
     overrides = overrides or {}
-    return ",".join(overrides.get(c, format_cell(row[c])) for c in COLUMNS)
+    return ",".join(overrides.get(c, format_cell(row[c])) for c in columns)
 
 
-def render_csv(rows: list[Row]) -> str:
-    lines = [",".join(COLUMNS), *(render_line(r) for r in rows)]
+def render_csv(rows: list[Row], columns: list[str] = COLUMNS) -> str:
+    lines = [",".join(columns), *(render_line(r, None, columns) for r in rows)]
     return "\n".join(lines) + "\n"
 
 
@@ -209,19 +227,23 @@ def case_steady(
     development_build: bool = True,
     unsupported: frozenset[str] = frozenset(),
     memory_growth: bool = False,
+    columns: list[str] = COLUMNS,
+    collection_levels: dict[int, str] | None = None,
 ) -> Case:
     rows = generate_rows(random.Random(seed), w)
     blank_columns(rows, unsupported)
     return Case(
         name=name,
         description=description,
-        csv_text=render_csv(rows),
+        csv_text=render_csv(rows, columns),
         rows=rows,
         warmup_frames=warmup_frames,
         development_build=development_build,
         unsupported=unsupported,
         workload=w,
         memory_growth=memory_growth,
+        columns=list(columns),
+        collection_levels=collection_levels or {},
     )
 
 
@@ -325,6 +347,19 @@ def build_cases() -> list[Case]:
             warmup_frames=20,
             memory_growth=True,
         ),
+        case_steady(
+            "gc_marker_timing",
+            "Schema 1.1 with GC.Collect timing: one hitch is mostly GC, the other is not.",
+            8,
+            Workload(
+                count=300,
+                collections=frozenset({90, 210}),
+                collect_share=((90, 0.9), (210, 0.1)),
+            ),
+            warmup_frames=20,
+            columns=COLUMNS_V11,
+            collection_levels={90: "evidence_backed_diagnosis", 210: "hypothesis"},
+        ),
         case_corrupt_rows(),
         Case(
             name="header_only",
@@ -347,7 +382,7 @@ def build_cases() -> list[Case]:
 def make_manifest(case: Case, frames_bytes: bytes) -> dict[str, object]:
     data_lines = 0 if not case.csv_text else case.csv_text.rstrip("\n").count("\n")
     return {
-        "schema_version": "1.0",
+        "schema_version": "1.1" if case.columns == COLUMNS_V11 else "1.0",
         "run_id": f"synthetic-{case.name}",
         "status": "completed",
         "abort_reason": None,
@@ -394,7 +429,7 @@ def make_manifest(case: Case, frames_bytes: bytes) -> dict[str, object]:
                 "availability": "unsupported" if name in case.unsupported else "measured",
                 "source": "synthetic",
             }
-            for name, unit in COLUMN_UNITS.items()
+            for name, unit in ((c, ALL_UNITS[c]) for c in case.columns)
         ],
     }
 
@@ -429,6 +464,10 @@ def make_expected(case: Case) -> dict[str, object]:
             "hitch_frames": after_warmup(w.cpu_spikes | w.collections) if w else [],
             "gc_alloc_spike_frames": after_warmup(w.alloc_spikes) if w and alloc_visible else [],
             "gc_collection_frames": after_warmup(w.collections) if w else [],
+            "gc_collection_levels": {
+                str(f): case.collection_levels.get(f, "hypothesis")
+                for f in (after_warmup(w.collections) if w else [])
+            },
             "memory_growth": case.memory_growth,
             "diagnostics": case.diagnostics,
         },

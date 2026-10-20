@@ -38,6 +38,10 @@
       70,
       190
     ],
+    "gc_collection_levels": {
+      "70": "hypothesis",
+      "190": "hypothesis"
+    },
     "memory_growth": false,
     "diagnostics": []
   },

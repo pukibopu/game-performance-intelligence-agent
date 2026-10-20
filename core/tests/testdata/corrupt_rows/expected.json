@@ -17,6 +17,7 @@
     "hitch_frames": [],
     "gc_alloc_spike_frames": [],
     "gc_collection_frames": [],
+    "gc_collection_levels": {},
     "memory_growth": false,
     "diagnostics": [
       {

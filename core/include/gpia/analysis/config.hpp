@@ -22,6 +22,7 @@ struct CpuConfig
 {
     std::size_t window = 61;
     double k = 2.0;
+    std::optional<double> floor_ms; // 为空时取目标帧时间的一半，避免中位数很小时把正常波动当尖峰
 };
 
 struct GcAllocConfig
