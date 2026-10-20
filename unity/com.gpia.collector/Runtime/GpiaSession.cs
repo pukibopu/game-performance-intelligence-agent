@@ -23,6 +23,9 @@ namespace Gpia.Collector
         static long frameStart;
         static bool hasPrevious;
         static uint pendingMarker;
+        static long callbackTicks;
+        static long callbackMaxTicks;
+        static long callbackCount;
         static double msPerTick;
         static double nsPerTick;
 
@@ -56,6 +59,9 @@ namespace Gpia.Collector
             hasPrevious = false;
             pendingMarker = 0;
             warmupFrames = 0;
+            callbackTicks = 0;
+            callbackMaxTicks = 0;
+            callbackCount = 0;
             msPerTick = 1000.0 / Stopwatch.Frequency;
             nsPerTick = 1e9 / Stopwatch.Frequency;
 
@@ -129,6 +135,11 @@ namespace Gpia.Collector
                 markers.Write(runDir, count);
                 markers.Dispose();
             }
+            double meanUs = callbackCount > 0 ? callbackTicks * 1e6 / Stopwatch.Frequency / callbackCount : 0.0;
+            double maxUs = callbackMaxTicks * 1e6 / Stopwatch.Frequency;
+            File.WriteAllText(Path.Combine(runDir, "collector.json"), string.Format(System.Globalization.CultureInfo.InvariantCulture,
+                "{{\n  \"callback_mean_us\": {0:F2},\n  \"callback_max_us\": {1:F2},\n  \"callbacks\": {2},\n  \"frame_timing_matched\": {3},\n  \"frame_timing_fallback\": {4},\n  \"frame_timing_unplaced\": {5}\n}}\n",
+                meanUs, maxUs, callbackCount, frameTiming.Matched, frameTiming.FallbackAssigned, frameTiming.Unplaced), new UTF8Encoding(false));
             Debug.Log($"[GPIA] wrote {count} frames to {runDir}; frame timing matched {frameTiming.Matched}, " +
                       $"fallback {frameTiming.FallbackAssigned}, unplaced {frameTiming.Unplaced}");
             samples = null;
@@ -168,6 +179,12 @@ namespace Gpia.Collector
             pendingMarker = 0;
             hasPrevious = true;
             frameStart = now;
+
+            // 记录采集回调本身的耗时，用来量化观察者效应
+            long spent = Stopwatch.GetTimestamp() - now;
+            callbackTicks += spent;
+            callbackMaxTicks = Math.Max(callbackMaxTicks, spent);
+            callbackCount++;
         }
 
         static void Install()
